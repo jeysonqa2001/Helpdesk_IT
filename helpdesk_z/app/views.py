@@ -1,43 +1,38 @@
-from flask import current_app, render_template
+from flask_appbuilder import ModelView
+from flask_appbuilder.models.sqla.interface import SQLAInterface
+from .extensions import appbuilder          # <-- antes: from app import appbuilder
+from .models import Departamento, Empleado, Tecnico, CategoriaFalla, Ticket, HistorialTicket
 
-"""
-    Create your Model based REST API::
+class DepartamentoModelView(ModelView):
+    datamodel = SQLAInterface(Departamento)
+    list_columns = ['id', 'nombre', 'descripcion']
 
-    class MyModelApi(ModelRestApi):
-        datamodel = SQLAInterface(MyModel)
+class EmpleadoModelView(ModelView):
+    datamodel = SQLAInterface(Empleado)
+    list_columns = ['nombre', 'email', 'cargo', 'departamento', 'ubicacion']
 
-    appbuilder.add_api(MyModelApi)
+class TecnicoModelView(ModelView):
+    datamodel = SQLAInterface(Tecnico)
+    list_columns = ['nombre', 'email', 'especialidad', 'disponible']
 
+class CategoriaFallaModelView(ModelView):
+    datamodel = SQLAInterface(CategoriaFalla)
+    list_columns = ['id', 'nombre', 'descripcion']
 
-    Create your Views::
+class TicketModelView(ModelView):
+    datamodel = SQLAInterface(Ticket)
+    list_columns = ['id', 'titulo', 'prioridad', 'estado', 'empleado', 'tecnico', 'categoria', 'fecha_creacion']
+    add_columns = ['titulo', 'descripcion', 'prioridad', 'empleado', 'categoria']
+    edit_columns = ['titulo', 'descripcion', 'prioridad', 'estado', 'tecnico', 'sugerencia_ia']
 
+class HistorialTicketModelView(ModelView):
+    datamodel = SQLAInterface(HistorialTicket)
+    list_columns = ['ticket', 'tecnico', 'nota_diagnostico', 'fecha_registro']
 
-    class MyModelView(ModelView):
-        datamodel = SQLAInterface(MyModel)
-
-
-    Next, register your Views on create_app Flask factory::
-
-
-    appbuilder.add_view(
-        MyModelView,
-        "My View",
-        icon="fa-folder-open-o",
-        category="My Category",
-        category_icon='fa-envelope'
-    )
-"""
-
-"""
-    Application wide 404 error handler
-"""
-
-
-@current_app.errorhandler(404)
-def page_not_found(e):
-    return (
-        render_template(
-            "404.html", base_template=appbuilder.base_template, appbuilder=appbuilder
-        ),
-        404,
-    )
+# Registrar las vistas dentro de la categoría "Help Desk" en el menú lateral
+appbuilder.add_view(DepartamentoModelView, "Departamentos", icon="fa-building", category="Help Desk")
+appbuilder.add_view(EmpleadoModelView, "Empleados", icon="fa-users", category="Help Desk")
+appbuilder.add_view(TecnicoModelView, "Técnicos", icon="fa-wrench", category="Help Desk")
+appbuilder.add_view(CategoriaFallaModelView, "Categorías de Falla", icon="fa-tags", category="Help Desk")
+appbuilder.add_view(TicketModelView, "Tickets", icon="fa-ticket", category="Help Desk")
+appbuilder.add_view(HistorialTicketModelView, "Historial de Tickets", icon="fa-history", category="Help Desk")
